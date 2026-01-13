@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+/* ======================
+   LIGHT MODE (Luxury Day)
+   ====================== */
+:root {
+  --background: 252 251 248;        /* warm off-white */
+  --foreground: 93 76 44;           /* soft gold text */
+
+  --glass: 255 255 255 / 0.6;
+  --glass-border: 220 200 150 / 0.4;
+
+  --card: 255 255 255 / 0.7;
+  --card-foreground: 93 76 44;
+
+  --primary: 201 162 39;            /* rich gold */
+  --primary-foreground: 255 255 255;
+
+  --muted: 130 115 80;
+  --border: 220 200 150;
+}
+
+/* ======================
+   DARK MODE (Luxury Night)
+   ====================== */
+.dark {
+  --background: 10 10 10;
+  --foreground: 230 200 120;        /* glowing gold */
+
+  --glass: 20 20 20 / 0.6;
+  --glass-border: 230 200 120 / 0.25;
+
+  --card: 18 18 18 / 0.7;
+  --card-foreground: 230 200 120;
+
+  --primary: 230 200 120;
+  --primary-foreground: 10 10 10;
+
+  --muted: 180 160 100;
+  --border: 80 70 40;
+}
+
+/* ======================
+   TAILWIND v4 MAPPING
+   ====================== */
+@theme {
+  --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+
+  --color-glass: rgb(var(--glass));
+  --color-glass-border: rgb(var(--glass-border));
+
+  --color-card: rgb(var(--card));
+  --color-card-foreground: rgb(var(--card-foreground));
+
+  --color-primary: rgb(var(--primary));
+  --color-primary-foreground: rgb(var(--primary-foreground));
+
+  --color-muted: rgb(var(--muted));
+  --color-border: rgb(var(--border));
+}
+.glass {
+  background: rgb(var(--glass));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgb(var(--glass-border));
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Smooth color & background transitions */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body,
+.glass,
+button,
+a,
+.card {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.snap-x {
+  scroll-snap-type: x mandatory;
+}
+.snap-center {
+  scroll-snap-align: center;
+}
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 15px rgba(255,215,0,0.3); }
+  50% { box-shadow: 0 0 25px rgba(255,215,0,0.5); }
+}
+
+.hover-glow:hover {
+  animation: glow 1.5s ease-in-out infinite alternate;
+}
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+.motion-btn {
+  transition: none !important; /* Let Framer Motion handle transitions */
+}
