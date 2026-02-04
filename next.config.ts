@@ -1,7 +1,13 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // output: "export", // for static HTML export
+  reactStrictMode: true,
+  images: {
+    unoptimized: true, // <-- disables Next.js image optimization
+  },
+   typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

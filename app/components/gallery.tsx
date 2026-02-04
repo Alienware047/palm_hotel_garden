@@ -1,8 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { X, Video, ChevronLeft, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import { X, Video } from "lucide-react";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  animate,
+} from "framer-motion";
 
 type GalleryItem = {
   type: "image" | "video";
@@ -11,180 +16,152 @@ type GalleryItem = {
 };
 
 const galleryItems: GalleryItem[] = [
-  { type: "image", src: "/gallery/room1.jpg", alt: "Luxury Room 1" },
-  { type: "image", src: "/gallery/room2.jpg", alt: "Luxury Room 2" },
+  { type: "image", src: "/gallery/room1.jpg", alt: "Luxury Room" },
+  { type: "image", src: "/gallery/room2.jpg", alt: "Executive Suite" },
   { type: "image", src: "/gallery/garden.jpg", alt: "Garden View" },
-  { type: "image", src: "/gallery/restaurant.jpg", alt: "Restaurant" },
+  { type: "image", src: "/gallery/restaurant.jpg", alt: "Fine Dining" },
 ];
 
 const videoItem: GalleryItem = { type: "video", src: "/gallery/tour.mp4" };
 
 export function Gallery() {
   const [selected, setSelected] = useState<GalleryItem | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isHovered, setIsHovered] = useState(false);
-  const [speed, setSpeed] = useState(0.5); // pixels per frame
+  const [isDragging, setIsDragging] = useState(false);
 
-  // Adjust speed based on screen width
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+
   useEffect(() => {
-    const updateSpeed = () => {
-      const width = window.innerWidth;
-      if (width < 640) setSpeed(0.25); // mobile slower
-      else if (width < 1024) setSpeed(0.4); // tablet
-      else setSpeed(0.5); // desktop faster
-    };
-    updateSpeed();
-    window.addEventListener("resize", updateSpeed);
-    return () => window.removeEventListener("resize", updateSpeed);
-  }, []);
+    if (!carouselRef.current) return;
 
-  // Marquee-style infinite animation using transform
-  useEffect(() => {
-    let animationFrame: number;
-    let x = 0;
+    const totalWidth = carouselRef.current.scrollWidth / 2;
 
-    const animate = () => {
-      if (!isHovered && containerRef.current) {
-        const container = containerRef.current;
-        const width = container.scrollWidth / 2; // half because items are duplicated
-        x -= speed;
-        if (Math.abs(x) >= width) x = 0;
-        container.style.transform = `translateX(${x}px)`;
-      }
-      animationFrame = requestAnimationFrame(animate);
-    };
+    const controls = animate(x, [-0, -totalWidth], {
+      ease: "linear",
+      duration: 30, // ⏱ speed (lower = faster)
+      repeat: Infinity,
+      repeatType: "loop",
+    });
 
-    animationFrame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrame);
-  }, [speed, isHovered]);
-
-  // Manual scroll buttons (move by one item width)
-  const scrollBy = (distance: number) => {
-    if (!containerRef.current) return;
-    containerRef.current.style.transform = `translateX(${
-      parseFloat(containerRef.current.style.transform.replace("translateX(", "").replace("px)", "")) + distance
-    }px)`;
-  };
+    return () => controls.stop();
+  }, [x]);
 
   return (
-    <section className="max-w-6xl mx-auto my-12 px-6 relative">
-      <h2 className="text-3xl font-semibold text-center text-foreground mb-8">
-        Experience Palm Garden Hotel
-      </h2>
-
-      {/* Carousel */}
-      <div className="relative overflow-hidden mb-12">
-        {/* Buttons */}
-        <div className="absolute top-1/2 left-0 right-0 flex justify-between px-2 -translate-y-1/2 z-20">
-          <button
-            onClick={() => scrollBy(300)}
-            className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <button
-            onClick={() => scrollBy(-300)}
-            className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
-        </div>
-
-        <div
-          className="flex gap-4 select-none cursor-grab relative"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          {/* containerRef will hold duplicated items for infinite scroll */}
-          <div
-            ref={containerRef}
-            className="flex gap-4"
-            style={{ display: "flex", willChange: "transform" }}
-          >
-            {[...galleryItems, ...galleryItems].map((item, idx) => (
-              <motion.div
-                key={idx}
-                className="flex-shrink-0 w-64 h-40 relative cursor-pointer rounded-2xl glass border border-glass-border overflow-hidden"
-                onClick={() => setSelected(item)}
-                whileHover={{
-                  scale: 1.08,
-                  boxShadow: "0 15px 40px rgba(234,179,8,0.5)",
-                }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <img
-                  src={item.src}
-                  alt={item.alt}
-                  className="w-full h-full object-cover rounded-2xl"
-                />
-              </motion.div>
-            ))}
-          </div>
-        </div>
+    <section className="max-w-7xl mx-auto px-6 py-24 relative">
+      {/* Heading */}
+      <div className="text-center mb-14">
+        <h2 className="text-4xl font-semibold text-foreground">
+          Discover Palm Garden
+        </h2>
+        <p className="text-muted mt-3 max-w-xl mx-auto">
+          A visual journey through comfort, elegance, and refined hospitality
+        </p>
       </div>
 
-      {/* Video Section */}
-      <div className="flex justify-center">
+      {/* Swipeable + Auto Infinite Carousel */}
+      <div className="overflow-hidden">
         <motion.div
-          className="w-full max-w-3xl relative rounded-2xl overflow-hidden glass border border-glass-border cursor-pointer"
-          whileHover={{
-            scale: 1.03,
-            boxShadow: "0 12px 35px rgba(234,179,8,0.5)",
-          }}
-          whileTap={{ scale: 0.95 }}
+          ref={carouselRef}
+          className="flex gap-6 cursor-grab"
+          style={{ x }}
+          drag="x"
+          dragElastic={0.08}
+          onDragStart={() => setIsDragging(true)}
+          onDragEnd={() => setIsDragging(false)}
+          whileTap={{ cursor: "grabbing" }}
+        >
+          {[...galleryItems, ...galleryItems].map((item, idx) => (
+            <motion.div
+              key={idx}
+              onClick={() => setSelected(item)}
+              className="group flex-shrink-0 w-[280px] h-[180px] rounded-3xl overflow-hidden glass border border-glass-border cursor-pointer relative"
+              whileHover={{ y: -6, scale: 1.03 }}
+              transition={{ type: "spring", stiffness: 200, damping: 18 }}
+            >
+              <img
+                src={item.src}
+                alt={item.alt}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition" />
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* View More */}
+      <div className="mt-12 flex justify-center">
+        <motion.a
+          href="/gallery"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.97 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          className="
+            inline-flex items-center gap-3
+            px-8 py-3 rounded-full
+            glass border border-glass-border
+            text-primary font-medium
+            hover:border-primary
+            shadow-lg
+          "
+        >
+          View More Gallery →
+        </motion.a>
+      </div>
+
+      {/* Video Preview */}
+      <div className="mt-20 flex justify-center">
+        <motion.div
           onClick={() => setSelected(videoItem)}
+          className="relative max-w-4xl w-full rounded-3xl overflow-hidden glass border border-glass-border cursor-pointer"
+          whileHover={{ scale: 1.02 }}
         >
           <video
             src={videoItem.src}
-            className="w-full h-60 object-cover rounded-2xl"
+            autoPlay
             muted
             loop
-            autoPlay
+            className="w-full h-[520px] object-cover"
           />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Video className="w-12 h-12 text-yellow-400" />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+            <div className="glass p-4 rounded-full border border-glass-border">
+              <Video className="w-10 h-10 text-primary" />
+            </div>
           </div>
         </motion.div>
       </div>
 
-      {/* Lightbox Modal */}
+      {/* Lightbox */}
       <AnimatePresence>
         {selected && (
           <motion.div
-            key={selected.src}
-            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <button
-              className="absolute top-6 right-6 text-foreground hover:text-primary"
               onClick={() => setSelected(null)}
+              className="absolute top-6 right-6 glass p-2 rounded-full border border-glass-border hover:border-primary"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 text-primary" />
             </button>
 
             {selected.type === "image" ? (
               <motion.img
                 src={selected.src}
-                alt={selected.alt}
-                className="max-h-[80vh] rounded-2xl object-contain shadow-xl"
-                initial={{ scale: 0.8 }}
+                className="max-h-[85vh] rounded-3xl shadow-2xl"
+                initial={{ scale: 0.85 }}
                 animate={{ scale: 1 }}
-                exit={{ scale: 0.8 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
               />
             ) : (
               <motion.video
                 src={selected.src}
-                className="max-h-[80vh] rounded-2xl shadow-xl"
                 controls
                 autoPlay
-                initial={{ scale: 0.8 }}
+                className="max-h-[85vh] rounded-3xl shadow-2xl"
+                initial={{ scale: 0.85 }}
                 animate={{ scale: 1 }}
-                exit={{ scale: 0.8 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
               />
             )}
           </motion.div>

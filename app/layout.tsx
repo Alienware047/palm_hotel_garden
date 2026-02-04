@@ -18,6 +18,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Palm Garden Hotel",
   description: "Relax in Nature, Comfort in Kumasi",
+  icons: {
+    icon: '/logo-light.png', // <-- change here
+    
+  },
 };
 
 export default function RootLayout({
@@ -31,9 +35,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
         <Provider>
-          <Header/>
+          
           {children}
-          <Footer />
+          
         </Provider>
       </body>
     </html>

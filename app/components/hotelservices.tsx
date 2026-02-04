@@ -12,32 +12,32 @@ type Facility = {
 const facilities: Facility[] = [
   {
     name: "Free Wi‑Fi",
-    icon: <Wifi className="w-8 h-8 text-yellow-400" />,
+    icon: <Wifi className="w-8 h-8 text-yellow-400 group-hover:text-white transition-colors" />,
     description: "Stay connected with our high‑speed wireless internet.",
   },
   {
     name: "Gourmet Dining",
-    icon: <HandPlatter className="w-8 h-8 text-yellow-400" />,
+    icon: <HandPlatter className="w-8 h-8 text-yellow-400 group-hover:text-white transition-colors" />,
     description: "Indulge in fine dining with local and international cuisine.",
   },
   {
     name: "Outdoor Pool",
-    icon: <Droplets className="w-8 h-8 text-yellow-400" />,
+    icon: <Droplets className="w-8 h-8 text-yellow-400 group-hover:text-white transition-colors" />,
     description: "Relax in our luxurious pool surrounded by greenery.",
   },
   {
     name: "Spa & Wellness",
-    icon: <Bubbles className="w-8 h-8 text-yellow-400" />,
+    icon: <Bubbles className="w-8 h-8 text-yellow-400 group-hover:text-white transition-colors" />,
     description: "Rejuvenate with premium spa treatments and massages.",
   },
   {
     name: "Fitness Center",
-    icon: <Dumbbell className="w-8 h-8 text-yellow-400" />,
+    icon: <Dumbbell className="w-8 h-8 text-yellow-400 group-hover:text-white transition-colors" />,
     description: "Fully equipped gym with modern fitness machines.",
   },
   {
     name: "Coffee & Lounge",
-    icon: <Coffee className="w-8 h-8 text-yellow-400" />,
+    icon: <Coffee className="w-8 h-8 text-yellow-400 group-hover:text-white transition-colors" />,
     description: "Enjoy artisan coffee in our stylish lounge area.",
   },
 ];
@@ -56,9 +56,10 @@ export function HotelServices() {
             className="
               glass p-6 rounded-2xl flex flex-col items-center text-center
               border border-glass-border
-              transition-colors duration-300
-              hover:bg-primary/10 dark:hover:bg-primary/20
+              transition-all duration-300
               cursor-pointer
+              group
+              hover:bg-primary/20 dark:hover:bg-primary/40
             "
             whileHover={{
               scale: 1.05,
@@ -67,13 +68,16 @@ export function HotelServices() {
             whileTap={{ scale: 0.95 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
-            <div className="mb-4">{facility.icon}</div>
+            <div className="mb-4">
+              {/* Icon uses group-hover to change color */}
+              {facility.icon}
+            </div>
 
-            <h3 className="text-xl font-semibold text-foreground dark:text-foreground mb-2">
+            <h3 className="text-xl font-semibold text-foreground group-hover:text-white mb-2 transition-colors">
               {facility.name}
             </h3>
 
-            <p className="text-foreground/80 dark:text-foreground/80 text-sm">
+            <p className="text-foreground/80 group-hover:text-white/90 text-sm transition-colors">
               {facility.description}
             </p>
           </motion.div>
