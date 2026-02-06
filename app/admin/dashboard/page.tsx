@@ -33,45 +33,26 @@ export default function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [alerts, setAlerts] = useState<string[]>([]);
 
+useEffect(() => {
+  fetch("/api/admin/dashboard")
+    .then(async (res) => {
+      if (res.status === 401) {
+        router.push("/admin-login");
+        return;
+      }
 
-  useEffect(() => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) {
-      router.push("/admin-login");
-      return;
-    }
-
-    // DASHBOARD DATA
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/dashboard`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
+      const json = await res.json();
+      setData(json);
     })
-      .then(async (res) => {
-        if (res.status === 401) {
-          localStorage.removeItem("adminToken");
-          router.push("/admin-login");
-          return;
-        }
-        const json = await res.json();
-        setData(json);
-      })
-      .catch(() => setError("Network error"))
-      .finally(() => setLoading(false));
+    .catch(() => setError("Network error"))
+    .finally(() => setLoading(false));
 
-    // 🔔 ALERTS FETCH (ADD THIS)
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/alerts`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    })
-      .then(res => res.json())
-      .then(json => setAlerts(json.alerts || []))
-      .catch(() => setAlerts([]));
+  fetch("/api/admin/alerts")
+    .then((res) => res.json())
+    .then((json) => setAlerts(json.alerts || []))
+    .catch(() => setAlerts([]));
 
-  }, [router]);
+}, [router]);
 
   if (loading) {
     return (
@@ -231,8 +212,11 @@ function AdminButton({ href, children }: { href: string; children: React.ReactNo
 function LogoutButton() {
   const router = useRouter();
 
-  function logout() {
-    localStorage.removeItem("adminToken");
+  async function logout() {
+    await fetch("/api/admin-logout", {
+      method: "POST",
+    });
+
     router.push("/admin-login");
   }
 
@@ -240,12 +224,17 @@ function LogoutButton() {
     <button
       onClick={logout}
       className="glass rounded-lg border px-6 py-3 font-semibold hover-glow min-w-[160px] sm:min-w-[180px]"
-      style={{ borderColor: "rgb(var(--glass-border))", color: "rgb(var(--foreground))", background: "rgb(var(--card))" }}
+      style={{
+        borderColor: "rgb(var(--glass-border))",
+        color: "rgb(var(--foreground))",
+        background: "rgb(var(--card))",
+      }}
     >
       Logout
     </button>
   );
 }
+
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
     paid: "bg-emerald-500/20 text-emerald-600",

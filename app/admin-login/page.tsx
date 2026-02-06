@@ -14,48 +14,42 @@ export default function AdminLoginPage() {
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  e.preventDefault();
 
-    setError("");
-    setSuccess("");
-    setLoading(true);
+  setError("");
+  setSuccess("");
+  setLoading(true);
 
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+  try {
+    const res = await fetch("/api/admin-login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok) {
-        setError(data.message || "Invalid credentials");
-        setLoading(false);
-        return;
-      }
-
-      // ✅ Save token
-      localStorage.setItem("adminToken", data.token);
-
-      // ✅ Success feedback
-      setSuccess("Login successful. Redirecting…");
-
-      // ✅ Short delay for UX polish
-      setTimeout(() => {
-        router.push("/admin/dashboard");
-      }, 1200);
-    } catch (err) {
-      console.error(err);
-      setError("Network error. Please try again.");
+    if (!res.ok) {
+      setError(data.message || "Invalid credentials");
       setLoading(false);
+      return;
     }
+
+    setSuccess("Login successful. Redirecting…");
+
+    setTimeout(() => {
+      router.push("/admin/dashboard");
+    }, 1200);
+
+  } catch (err) {
+    console.error(err);
+    setError("Network error. Please try again.");
+    setLoading(false);
   }
+}
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
