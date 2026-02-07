@@ -150,7 +150,7 @@ export default function AdminCheckInPage() {
         />
 
         <select
-          className="input"
+          className="input bg-background"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         >

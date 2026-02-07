@@ -1,0 +1,66 @@
+export const roomsList = [
+  {
+    slug: "standard-room",
+    name: "Garden View Suite",
+    image: "/rooms/garden-suite.jpg",
+    short: "Relax with serene garden views and elegant interiors.",
+    price: "$120 / night",
+    capacity: 2,
+    description: "A peaceful suite overlooking the gardens.",
+    is_available: true,
+  },
+  {
+    slug: "luxury-double-room",
+    name: "Luxury Double Room",
+    image: "/rooms/luxury-double.jpg",
+    short: "Spacious double room with modern comforts.",
+    price: "$90 / night",
+    capacity: 2,
+    description: "Comfortable double room with modern amenities.",
+    is_available: true,
+  },
+  {
+    slug: "executive-room",
+    name: "Executive Room",
+    image: "/rooms/executive-room.jpg",
+    short: "Elegant executive room with premium amenities.",
+    price: "$100 / night",
+    capacity: 2,
+    description: "Executive room perfect for business travelers.",
+    is_available: false,
+  },
+  {
+    slug: "luxury-suite",
+    name: "Premium Family Room",
+    image: "/rooms/family-room.jpg",
+    short: "Perfect for families, more space & comfort.",
+    price: "$150 / night",
+    capacity: 4,
+    description: "Spacious family room with extra beds available.",
+    is_available: true,
+  },
+  {
+    slug: "garden-view-suite",
+    name: "Romantic Suite",
+    image: "/rooms/romantic-suite.jpg",
+    short: "Ideal for couples seeking luxury & intimacy.",
+    price: "$200 / night",
+    capacity: 2,
+    description: "Luxurious suite with romantic touches.",
+    is_available: true,
+  },
+  {
+    slug: "deluxe-room",
+    name: "Pool Side Cabin",
+    image: "/rooms/pool-side-cabin.jpg",
+    short: "Private cabin with direct pool access.",
+    price: "$20 / day",
+    capacity: 2,
+    description: "Cozy cabin by the pool for short stays.",
+    is_available: true,
+  },
+];
+
+export function findRoomBySlug(slug: string) {
+  return roomsList.find((r) => r.slug === slug);
+}

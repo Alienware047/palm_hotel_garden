@@ -2,53 +2,9 @@
 
 import { RoomsHero } from "../../components/roomhero";
 import { RoomCard } from "../../components/roomcard";
+import { roomsList } from "./data";
 import { BedDouble, Sparkles, ConciergeBell } from "lucide-react";
 
-const roomsList = [
-  {
-    slug: "garden-view-suite",
-    name: "Garden View Suite",
-    image: "/rooms/garden-suite.jpg",
-    short: "Relax with serene garden views and elegant interiors.",
-    price: "$120 / night",
-  },
-  {
-    slug: "luxury-double-room",
-    name: "Luxury Double Room",
-    image: "/rooms/luxury-double.jpg",
-    short: "Spacious double room with modern comforts.",
-    price: "$90 / night",
-  },
-  {
-    slug: "executive-room",
-    name: "Executive Room",
-    image: "/rooms/executive-room.jpg",
-    short: "Elegant executive room with premium amenities.",
-    price: "$100 / night",
-  },
-  {
-    slug: "premium-family-room",
-    name: "Premium Family Room",
-    image: "/rooms/family-room.jpg",
-    short: "Perfect for families, more space & comfort.",
-    price: "$150 / night",
-  },
-  {
-    slug: "romantic-suite",
-    name: "Romantic Suite",
-    image: "/rooms/romantic-suite.jpg",
-    short: "Ideal for couples seeking luxury & intimacy.",
-    price: "$200 / night",
-  },
-  
-  {
-    slug: "pool-side-cabin",
-    name: "Pool Side Cabin",
-    image: "/rooms/pool-side-cabin.jpg",
-    short: "Private cabin with direct pool access.",
-    price: "$20 / day",
-  },
-];
 
 export default function RoomsPage() {
   return (

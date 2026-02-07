@@ -1,8 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Header } from "./components/header";
-import { Footer } from "./components/footer";
 
 export default function NotFound() {
   // More palms for fuller look
@@ -15,7 +13,7 @@ export default function NotFound() {
 
   return (
     <>
-      <Header />
+      
       <div className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden transition-colors bg-light-background dark:bg-dark-background text-light-foreground dark:text-dark-foreground">
         
         {/* Water Background */}
@@ -97,7 +95,7 @@ export default function NotFound() {
           .animate-pulse-slower { animation: pulse-slow 5s ease-in-out infinite; }
         `}</style>
       </div>
-      <Footer />
+      
     </>
   );
 }
