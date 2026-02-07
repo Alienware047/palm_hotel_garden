@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useState, useEffect } from "react";
 
 interface Room {
@@ -78,18 +79,79 @@ export default function RoomModal({ open, onClose, onSave, room }: RoomModalProp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">{room ? "Edit Room" : "Add Room"}</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="bg-background rounded-2xl p-6 w-full max-w-md shadow-2xl">
+        <h2 className="text-2xl font-semibold mb-4 text-center">
+          {room ? "Edit Room" : "Add Room"}
+        </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
+
+          {/* ⭐ Image Preview Gallery */}
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">
+              Room Images
+            </p>
+
+            <div className="flex gap-3 flex-wrap">
+              {images.length > 0 ? (
+                images.map((img, i) => (
+                  <div
+                    key={i}
+                    className="relative group w-20 h-20 rounded-xl overflow-hidden border"
+                  >
+                    <img
+                      src={URL.createObjectURL(img)}
+                      alt="preview"
+                      className="w-full h-full object-cover transition group-hover:scale-110"
+                    />
+
+                    {/* Remove Button */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setImages(prev => prev.filter((_, index) => index !== i))
+                      }
+                      className="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="text-sm text-muted-foreground italic">
+                  No images selected
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ⭐ Upload Box */}
+          <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-4 cursor-pointer hover:bg-muted/40 transition">
+            <span className="text-sm text-muted-foreground">
+              Click to upload (Max 3 images)
+            </span>
+
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
+              className="hidden"
+            />
+          </label>
+
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
+          {/* ⭐ Room Info Fields */}
+
           <input
             type="text"
             placeholder="Room Name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             required
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none"
           />
 
           <input
@@ -98,82 +160,64 @@ export default function RoomModal({ open, onClose, onSave, room }: RoomModalProp
             value={form.slug}
             onChange={(e) => setForm({ ...form, slug: e.target.value })}
             required
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none"
           />
 
-          <input
-            type="number"
-            placeholder="Capacity"
-            value={form.capacity === 0 ? "" : form.capacity}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                capacity: e.target.value === "" ? 0 : Number(e.target.value),
-              })
-            }
-            className="w-full border rounded-lg px-3 py-2"
-          />
+          <div className="grid grid-cols-2 gap-3">
+            <input
+              type="number"
+              placeholder="Capacity"
+              value={form.capacity === 0 ? "" : form.capacity}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  capacity: e.target.value === "" ? 0 : Number(e.target.value),
+                })
+              }
+              className="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none"
+            />
 
-          <input
-            type="number"
-            placeholder="Price (GHS)"
-            value={form.price === 0 ? "" : form.price}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                price: e.target.value === "" ? 0 : Number(e.target.value),
-              })
-            }
-            className="w-full border rounded-lg px-3 py-2"
-          />
-
+            <input
+              type="number"
+              placeholder="Price (GHS)"
+              value={form.price === 0 ? "" : form.price}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  price: e.target.value === "" ? 0 : Number(e.target.value),
+                })
+              }
+              className="border rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none"
+            />
+          </div>
 
           <textarea
             placeholder="Description"
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary outline-none"
           />
 
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImageChange}
-            className="w-full border rounded-lg px-3 py-2"
-          />
-
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-
-          {/* Preview */}
-          <div className="flex gap-2">
-            {images.map((img, i) => (
-              <img
-                key={i}
-                src={URL.createObjectURL(img)}
-                alt={`preview-${i}`}
-                className="w-16 h-16 object-cover rounded"
-              />
-            ))}
-          </div>
-
-          <div className="flex justify-end gap-3 mt-2">
+          {/* ⭐ Action Buttons */}
+          <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="border px-4 py-2 rounded-lg"
+              className="bg-glass px-4 py-2 rounded-xl border  transition"
             >
               Cancel
             </button>
+
             <button
               type="submit"
-              className="bg-primary text-white px-4 py-2 rounded-lg"
+              className=" px-5 py-2 rounded-xl bg-primary text-white hover:opacity-90 transition shadow-md"
             >
-              Save
+              Save Room
             </button>
           </div>
         </form>
       </div>
     </div>
   );
+
 }

@@ -33,8 +33,11 @@ export default function AdminHeader({
 
 
   function handleLogout() {
-    localStorage.removeItem("adminToken");
-    window.location.href = "/admin-login";
+    // clear server cookie via API then redirect
+    fetch("/api/admin-logout", { method: "POST" }).finally(() => {
+      localStorage.removeItem("adminToken");
+      window.location.href = "/admin-login";
+    });
   }
 
   /* -------------------------

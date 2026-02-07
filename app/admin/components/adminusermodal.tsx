@@ -24,23 +24,17 @@ export default function AdminUserModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const token = typeof window !== "undefined"
-    ? localStorage.getItem("adminToken")
-    : null;
-
   async function saveAdmin() {
     setLoading(true);
     setError(null);
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/profile`,
+        `/api/admin/profile`,
         {
           method: "PUT",
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
-            Accept: "application/json",
           },
           body: JSON.stringify({
             name,
@@ -67,15 +61,11 @@ export default function AdminUserModal({
 
     setLoading(true);
 
-    await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/update`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    try {
+      await fetch(`/api/admin/profile`, { method: "DELETE" });
+    } catch (err) {
+      // ignore
+    }
 
     localStorage.removeItem("adminToken");
     window.location.href = "/admin-login";

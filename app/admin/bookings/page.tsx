@@ -3,9 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import BookingModal from "../components/bookingmodal";
-import { LucideIcon } from "lucide-react";
+import { LucideIcon, Users, CheckCircle, DollarSign, Clock } from "lucide-react";
 import { format } from "date-fns";
-import { Users, CheckCircle, DollarSign, Clock } from "lucide-react";
 
 interface Booking {
   id: number;
@@ -44,39 +43,48 @@ export default function AdminBookingsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editBooking, setEditBooking] = useState<Booking | null>(null);
 
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("adminToken")
-      : null;
+  const [stats, setStats] = useState({
+    total: 0,
+    confirmed: 0,
+    paid: 0,
+    pending: 0,
+  });
 
-  // ======================
-  // Fetch Bookings (Paginated)
-  // ======================
-  const fetchBookings = async () => {
-    if (!hasMore || loadingMore) return;
+  // ------------------------
+  // Fetch bookings via API route
+  // ------------------------
+  const fetchBookings = async (reset = false) => {
+    if (!hasMore && !reset) return;
+    if (loadingMore) return;
 
     setLoadingMore(true);
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/bookings?page=${page}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          cache: "no-store",
-        }
-      );
+      const query = new URLSearchParams();
+      query.set("page", reset ? "1" : page.toString());
+      if (search) query.set("search", search);
+      if (statusFilter !== "all") query.set("status", statusFilter);
+      if (paymentFilter !== "all") query.set("payment", paymentFilter);
+
+      const res = await fetch(`/api/admin/bookings?${query.toString()}`, {
+        cache: "no-store",
+      });
+
+      if (res.status === 401) {
+        router.replace("/admin-login");
+        return;
+      }
 
       const data = await res.json();
-      const bookingsData = data.bookings.data || [];
-      const currentPage = data.bookings.current_page;
-      const lastPage = data.bookings.last_page;
+      const bookingsData = data.bookings?.data || [];
+      const currentPage = data.bookings?.current_page || 1;
+      const lastPage = data.bookings?.last_page || 1;
 
-      setBookings((prev) => [...prev, ...bookingsData]);
+      setBookings(prev =>
+        reset ? bookingsData : [...prev, ...bookingsData]
+      );
       setHasMore(currentPage < lastPage);
-      setPage((p) => p + 1);
+      setPage(currentPage + 1);
     } catch (err) {
       console.error(err);
     } finally {
@@ -85,94 +93,53 @@ export default function AdminBookingsPage() {
     }
   };
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
+  // ------------------------
+  // Fetch stats via API route
+  // ------------------------
+  const fetchBookingStats = async () => {
+    try {
+      const res = await fetch("/api/admin/bookings/stats", { cache: "no-store" });
+      if (res.status === 401) {
+        router.replace("/admin-login");
+        return;
+      }
+      const data = await res.json();
+      setStats(data);
+    } catch (err) {
+      console.error("Failed to load booking stats", err);
+    }
+  };
 
-  // ======================
-  // Infinite Scroll Observer
-  // ======================
+  // ------------------------
+  // Initial load
+  // ------------------------
+  useEffect(() => {
+    fetchBookingStats();
+    fetchBookings(true);
+  }, [search, statusFilter, paymentFilter]);
+
+  // ------------------------
+  // Infinite scroll observer
+  // ------------------------
   useEffect(() => {
     if (!loaderRef.current || !tableContainerRef.current) return;
 
     const observer = new IntersectionObserver(
-      (entries) => {
+      entries => {
         if (entries[0].isIntersecting && hasMore && !loadingMore) {
           fetchBookings();
         }
       },
-      {
-        root: tableContainerRef.current, // scrollable container
-        rootMargin: "50px",
-        threshold: 0.1,
-      }
+      { root: tableContainerRef.current, rootMargin: "50px", threshold: 0.1 }
     );
 
     observer.observe(loaderRef.current);
-
     return () => observer.disconnect();
   }, [hasMore, loadingMore]);
 
-  // ======================
-  // Filters & Search
-  // ======================
-  const filteredBookings = bookings
-    .filter((b) => {
-      const term = search.toLowerCase();
-      return (
-        (b.name ?? "").toLowerCase().includes(term) ||
-        (b.booking_ref ?? "").toLowerCase().includes(term) ||
-        (b.email ?? "").toLowerCase().includes(term)
-      );
-    })
-    .filter((b) =>
-      statusFilter === "all" ? true : b.status === statusFilter
-    )
-    .filter((b) =>
-      paymentFilter === "all"
-        ? true
-        : b.payment_status === paymentFilter
-    );
-
-    // ======================
-    // Fetch Bookings
-    // ======================
-    const fetchBookingStats = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/bookings/stats`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            cache: "no-store",
-          }
-        );
-
-        const data = await res.json();
-        setStats(data);
-      } catch (err) {
-        console.error("Failed to load booking stats", err);
-      }
-    };
-    useEffect(() => {
-      fetchBookingStats();
-      fetchBookings();
-    }, []);
-
-
-  // ======================
-  // Stats
-  // ======================
-  const [stats, setStats] = useState({
-    total: 0,
-    confirmed: 0,
-    paid: 0,
-    pending: 0,
-  });
-
-
+  // ------------------------
+  // Render
+  // ------------------------
   if (initialLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -199,13 +166,13 @@ export default function AdminBookingsPage() {
           className="input bg-[rgb(var(--card))] text-[rgb(var(--card-foreground))] placeholder:text-[rgb(var(--muted))] focus:ring-[rgb(var(--primary))]"
           placeholder="Search bookings..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
         />
 
         <select
           className="input bg-[rgb(var(--card))] text-[rgb(var(--card-foreground))] focus:ring-[rgb(var(--primary))]"
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          onChange={e => setStatusFilter(e.target.value)}
         >
           <option value="all">All Status</option>
           <option value="confirmed">Confirmed</option>
@@ -216,7 +183,7 @@ export default function AdminBookingsPage() {
         <select
           className="input bg-[rgb(var(--card))] text-[rgb(var(--card-foreground))] focus:ring-[rgb(var(--primary))]"
           value={paymentFilter}
-          onChange={(e) => setPaymentFilter(e.target.value)}
+          onChange={e => setPaymentFilter(e.target.value)}
         >
           <option value="all">All Payments</option>
           <option value="paid">Paid</option>
@@ -244,27 +211,18 @@ export default function AdminBookingsPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredBookings.map((b) => (
-                <tr
-                  key={b.id}
-                  className="border-b border-[rgb(var(--border))] hover:bg-[rgb(var(--glass))] transition-colors duration-200"
-                >
+              {bookings.map(b => (
+                <tr key={b.id} className="border-b border-[rgb(var(--border))] hover:bg-[rgb(var(--glass))] transition-colors duration-200">
                   <td className="p-3">
-                    {b.name}
-                    <br />
+                    {b.name}<br/>
                     <span className="text-sm text-[rgb(var(--muted))]">{b.email}</span>
                   </td>
                   <td className="p-3">{b.room?.name ?? "-"}</td>
                   <td className="p-3">
-                    {format(new Date(b.check_in), "MMM dd")} →{" "}
-                    {format(new Date(b.check_out), "MMM dd")}
+                    {format(new Date(b.check_in), "MMM dd")} → {format(new Date(b.check_out), "MMM dd")}
                   </td>
-                  <td className="p-3">
-                    <Badge status={b.status} />
-                  </td>
-                  <td className="p-3">
-                    <Badge status={b.payment_status} type="payment" />
-                  </td>
+                  <td className="p-3"><Badge status={b.status} /></td>
+                  <td className="p-3"><Badge status={b.payment_status} type="payment" /></td>
                   <td className="p-3">${b.total_price ?? 0}</td>
                   <td className="p-3">
                     <button
@@ -273,19 +231,14 @@ export default function AdminBookingsPage() {
                         setEditBooking(b);
                         setModalOpen(true);
                       }}
-                    >
-                      View
-                    </button>
+                    >View</button>
                   </td>
                 </tr>
               ))}
+
               {/* Infinite scroll loader */}
               <tr>
-                <td
-                  colSpan={7}
-                  ref={loaderRef}
-                  className="h-24 flex items-center justify-center text-sm text-[rgb(var(--muted))]"
-                >
+                <td colSpan={7} ref={loaderRef} className="h-24 flex items-center justify-center text-sm text-[rgb(var(--muted))]">
                   {loadingMore && "Loading more bookings…"}
                   {!hasMore && "No more bookings"}
                 </td>
@@ -305,41 +258,28 @@ export default function AdminBookingsPage() {
             setBookings([]);
             setPage(1);
             setHasMore(true);
-            fetchBookings();
+            fetchBookings(true);
+            fetchBookingStats();
           }}
         />
       )}
     </div>
   );
 
-  // ======================
+  // ------------------------
   // Components
-  // ======================
-  function StatCard({
-    label,
-    value,
-    Icon,
-  }: {
-    label: string;
-    value: number;
-    Icon: LucideIcon;
-  }) {
+  // ------------------------
+  function StatCard({ label, value, Icon }: { label: string; value: number; Icon: LucideIcon }) {
     return (
       <div className="p-4 rounded glass hover:text-white flex flex-col items-center gap-2">
-        {Icon && <Icon className="w-6 h-6" />}
+        <Icon className="w-6 h-6"/>
         <p className="text-sm">{label}</p>
         <p className="text-2xl font-bold">{value}</p>
       </div>
     );
   }
 
-  function Badge({
-    status,
-    type = "booking",
-  }: {
-    status: string;
-    type?: "booking" | "payment";
-  }) {
+  function Badge({ status, type = "booking" }: { status: string; type?: "booking" | "payment" }) {
     const colors: Record<string, string> = {
       confirmed: "bg-green-100 text-green-800",
       pending: "bg-yellow-100 text-yellow-800",

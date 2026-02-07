@@ -43,11 +43,6 @@ export default function BookingModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("adminToken")
-      : null;
-
   /* ======================
      Sync state when booking changes
   ====================== */
@@ -65,18 +60,15 @@ export default function BookingModal({
      Save booking
   ====================== */
   const handleSave = async () => {
-    if (!token) return;
-
     setLoading(true);
     setError(null);
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/bookings/${booking.id}`,
+        `/api/admin/bookings/${booking.id}`,
         {
           method: "PUT",
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({

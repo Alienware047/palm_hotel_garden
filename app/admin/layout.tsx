@@ -15,15 +15,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const [admin, setAdmin] = useState<{id: number, name: string, email: string} | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    if (!token) return;
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/admin/dashboard`);
 
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/dashboard`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(res => res.json())
-      .then(json => setAdmin(json.admin))
-      .catch(() => setAdmin(null));
+        if (res.status === 401) {
+          // not authenticated
+          setAdmin(null);
+          return;
+        }
+
+        const json = await res.json();
+        setAdmin(json.admin || null);
+      } catch {
+        setAdmin(null);
+      }
+    };
+
+    load();
   }, []);
   return (
     <div className="flex h-screen bg-[rgb(var(--background))] text-[rgb(var(--foreground))] transition-colors duration-300 overflow-hidden">

@@ -22,16 +22,12 @@ export default function AddAdminUserModal({
     setError(null);
 
     try {
-      const token = localStorage.getItem("adminToken");
-
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/newadmin`,
+        `/api/admin/newadmin`,
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
-            Accept: "application/json",
           },
           body: JSON.stringify({ name, email, password }),
         }

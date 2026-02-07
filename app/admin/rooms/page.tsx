@@ -37,83 +37,81 @@ export default function AdminRoomsPage() {
      Fetch Rooms via API route (httpOnly cookie)
   --------------------------- */
   useEffect(() => {
-    const fetchRooms = async () => {
+    const load = async () => {
       try {
-        setLoading(true);
-
-        const res = await fetch("/api/admin/rooms");
+        const res = await fetch(`/api/admin/rooms`);
 
         if (res.status === 401) {
-          router.replace("/admin-login");
+          router.push("/admin-login");
           return;
         }
 
-        if (!res.ok) throw new Error("Failed to fetch rooms");
+        if (!res.ok) throw new Error("Failed to load rooms");
 
         const data = await res.json();
-        setRooms(data.rooms || data); // support both formats
+        setRooms(data || []);
       } catch (err: any) {
-        setError(err.message || "Something went wrong");
+        setError(err.message || "Error loading rooms");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRooms();
+    load();
   }, [router]);
 
-  /* --------------------------
-     Save Room
-  --------------------------- */
-  const handleSaveRoom = async (formData: FormData) => {
-    const roomId = formData.get("id");
-    const url = roomId ? `/api/admin/rooms/${roomId}` : `/api/admin/rooms`;
-
-    try {
-      const res = await fetch(url, {
-        method: "POST",
-        body: formData, // httpOnly cookie sent automatically
-      });
-
-      if (res.status === 401) {
-        router.replace("/admin-login");
-        return;
-      }
-
-      if (!res.ok) throw new Error("Failed to save room");
-
-      const refreshed = await res.json();
-      setRooms(prev => roomId ? prev.map(r => r.id === refreshed.id ? refreshed : r) : [refreshed, ...prev]);
-      setModalOpen(false);
-      setEditRoom(undefined);
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
-  /* --------------------------
-     Delete Room
-  --------------------------- */
   const handleDeleteRoom = async (id: number) => {
     if (!confirm("Delete this room?")) return;
 
     try {
-      const res = await fetch(`/api/admin/rooms/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`/api/admin/rooms/${id}`, { method: "DELETE" });
 
       if (res.status === 401) {
-        router.replace("/admin-login");
+        router.push("/admin-login");
         return;
       }
 
-      if (!res.ok) throw new Error("Delete failed");
+      if (!res.ok) throw new Error("Failed to delete room");
 
       setRooms(prev => prev.filter(r => r.id !== id));
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Error deleting room");
     }
   };
+const handleSaveRoom = async (formData: FormData) => {
+  const roomId = formData.get("id");
+  const url = roomId
+    ? `/api/admin/rooms/${roomId}`
+    : `/api/admin/rooms`;
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (res.status === 401) {
+      router.push("/admin-login");
+      return;
+    }
+
+    if (!res.ok) throw new Error("Failed to save room");
+
+    const refreshed = await res.json();
+
+    setRooms(prev =>
+      roomId
+        ? prev.map(r => (r.id === refreshed.id ? refreshed : r))
+        : [refreshed, ...prev]
+    );
+
+    setModalOpen(false);
+    setEditRoom(undefined);
+
+  } catch (err: any) {
+    setError(err.message);
+  }
+};
 
   /* --------------------------
      Derived Data

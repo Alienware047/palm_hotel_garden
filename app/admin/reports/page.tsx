@@ -40,11 +40,6 @@ export default function AdminReportsPage() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
 
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("adminToken")
-      : null;
-
   // ======================
   // Fetch Reports
   // ======================
@@ -57,11 +52,8 @@ export default function AdminReportsPage() {
       if (to) query.append("to", to);
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/reports?${query.toString()}`,
+        `/api/admin/reports?${query.toString()}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
           cache: "no-store",
         }
       );

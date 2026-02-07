@@ -32,11 +32,6 @@ export default function AdminCheckInPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("today");
 
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("adminToken")
-      : null;
-
   // ======================
   // Fetch Check-Ins
   // ======================
@@ -47,11 +42,8 @@ export default function AdminCheckInPage() {
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/checkins?page=${page}&filter=${filter}`,
+        `/api/admin/checkins?page=${page}&filter=${filter}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
           cache: "no-store",
         }
       );
@@ -105,11 +97,10 @@ export default function AdminCheckInPage() {
   const handleCheckIn = async (bookingId: number) => {
     try {
       await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/bookings/${bookingId}/checkin`,
+        `/api/admin/bookings/${bookingId}/checkin`,
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         }
