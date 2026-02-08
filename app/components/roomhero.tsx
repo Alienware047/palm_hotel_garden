@@ -14,7 +14,7 @@ export function RoomsHero() {
       <div className="absolute inset-0 bg-black/40 dark:bg-black/70"></div>
 
       {/* Glass text content */}
-      <div className="relative z-10 flex items-center justify-center h-full px-6">
+      <div className="mt-24 relative z-10 flex items-center justify-center h-full px-6">
         <div className="glass rounded-2xl p-8 md:p-12 max-w-3xl text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground drop-shadow-lg mb-4">
             Discover Our Rooms
