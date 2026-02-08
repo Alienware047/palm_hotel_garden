@@ -2,8 +2,8 @@
 "use client";
 
 import { ReactNode, useState } from "react";
-import AdminHeader from "./components/adminheader";
-import AdminSidebar from "./components/adminsidebar";
+import AdminHeader from "../../components/backend/adminheader";
+import AdminSidebar from "../../components/backend/adminsidebar";
 import { useEffect } from "react";
 
 interface AdminLayoutProps {

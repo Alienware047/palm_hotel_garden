@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import RoomModal from "../components/roommodal";
+import RoomModal from "../../../components/backend/roommodal";
 import { LucideIcon, Hotel, DollarSign, Users, Image as ImageIcon } from "lucide-react";
 
 interface RoomImage {

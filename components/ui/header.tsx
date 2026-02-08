@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Menu, X, Phone, MessageCircle } from "lucide-react";
-import ThemesToggleButton from "./themetoogle";
+import ThemesToggleButton from "@/components/theme/themetoogle";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 

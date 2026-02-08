@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import BookingModal from "../components/bookingmodal";
+import BookingModal from "../../../components/backend/bookingmodal";
 import { LucideIcon, Users, CheckCircle, DollarSign, Clock } from "lucide-react";
 import { format } from "date-fns";
 

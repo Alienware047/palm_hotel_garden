@@ -1,13 +1,13 @@
-import {Hero} from "../components/hero";
-import { QuickInfoBar } from "../components/quick-info-bar";
-import { IntroSection } from "../components/intro-section";
-import { Highlights } from "../components/highlights";
-import { Reviews } from "../components/review";
-import { Gallery } from "../components/gallery";
-import { RoomHighlights } from "../components/roomHighlights";
-import { HotelServices } from "../components/hotelservices";
-import { HotelFacilities } from "../components/hotelfacilities";
-import { Header } from "../components/header";
+import {Hero} from "../../components/frontend/homepage/hero";
+import { QuickInfoBar } from "../../components/frontend/homepage/quick-info-bar";
+import { IntroSection } from "../../components/frontend/homepage/intro-section";
+import { Highlights } from "../../components/frontend/homepage/highlights";
+import { Reviews } from "../../components/frontend/homepage/review";
+import { Gallery } from "../../components/frontend/gallery/gallery";
+import { RoomHighlights } from "../../components/frontend/rooms/roomHighlights";
+import { HotelServices } from "../../components/frontend/facilities/hotelservices";
+import { HotelFacilities } from "../../components/frontend/facilities/hotelfacilities";
+import { Header } from "../../components/ui/header";
 
 export default function Home() {
   return (

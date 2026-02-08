@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { HotelFacilities } from "../../components/hotelfacilities";
+import { HotelFacilities } from "../../../components/frontend/facilities/hotelfacilities";
 
 export default function AboutUsPage() {
   return (
